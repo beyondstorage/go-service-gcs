@@ -1,6 +1,4 @@
 /*
-Package example provided support for local file system.
+Package gcs provided support for Google Cloud Storage (https://cloud.google.com/storage/)
 */
-package example
-
-//go:generate definitions service.hcl
+package gcs
