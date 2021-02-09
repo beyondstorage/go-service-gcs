@@ -23,8 +23,8 @@ const Type = "gcs"
 
 // Service available pairs.
 const (
-	// Project
-	pairProject = "gcs_project"
+	// ProjectID
+	pairProjectID = "gcs_project_id"
 	// StorageClass
 	pairStorageClass = "gcs_storage_class"
 )
@@ -34,11 +34,11 @@ const (
 	MetadataStorageClass = "gcs-storage-class"
 )
 
-// WithProject will apply project value to Options
-// Project
-func WithProject(v string) Pair {
+// WithProjectID will apply project_id value to Options
+// ProjectID
+func WithProjectID(v string) Pair {
 	return Pair{
-		Key:   pairProject,
+		Key:   pairProjectID,
 		Value: v,
 	}
 }
@@ -59,8 +59,8 @@ type pairServiceNew struct {
 	// Required pairs
 	HasCredential bool
 	Credential    string
-	HasProject    bool
-	Project       string
+	HasProjectID  bool
+	ProjectID     string
 	// Optional pairs
 	HasHTTPClientOptions bool
 	HTTPClientOptions    *httpclient.Options
@@ -81,9 +81,9 @@ func parsePairServiceNew(opts []Pair) (pairServiceNew, error) {
 		case "credential":
 			result.HasCredential = true
 			result.Credential = v.Value.(string)
-		case pairProject:
-			result.HasProject = true
-			result.Project = v.Value.(string)
+		case pairProjectID:
+			result.HasProjectID = true
+			result.ProjectID = v.Value.(string)
 		// Optional pairs
 		case "http_client_options":
 			result.HasHTTPClientOptions = true
@@ -97,8 +97,8 @@ func parsePairServiceNew(opts []Pair) (pairServiceNew, error) {
 	if !result.HasCredential {
 		return pairServiceNew{}, services.NewPairRequiredError("credential")
 	}
-	if !result.HasProject {
-		return pairServiceNew{}, services.NewPairRequiredError(pairProject)
+	if !result.HasProjectID {
+		return pairServiceNew{}, services.NewPairRequiredError(pairProjectID)
 	}
 
 	return result, nil

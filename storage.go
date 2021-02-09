@@ -134,6 +134,12 @@ func (s *Storage) read(ctx context.Context, path string, w io.Writer, opt pairSt
 	if err != nil {
 		return 0, err
 	}
+	defer func() {
+		cerr := rc.Close()
+		if cerr != nil {
+			err = cerr
+		}
+	}()
 
 	if opt.HasIoCallback {
 		rc = iowrap.CallbackReadCloser(rc, opt.IoCallback)
@@ -158,7 +164,12 @@ func (s *Storage) write(ctx context.Context, path string, r io.Reader, size int6
 
 	object := s.bucket.Object(rp)
 	w := object.NewWriter(ctx)
-	defer w.Close()
+	defer func() {
+		cerr := w.Close()
+		if cerr != nil {
+			err = cerr
+		}
+	}()
 
 	w.Size = size
 	if opt.HasContentMd5 {
