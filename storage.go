@@ -2,17 +2,17 @@ package gcs
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	gs "cloud.google.com/go/storage"
 	"google.golang.org/api/iterator"
 
-	"github.com/aos-dev/go-storage/v2/pkg/iowrap"
-	"github.com/aos-dev/go-storage/v2/types"
-	"github.com/aos-dev/go-storage/v2/types/info"
+	"github.com/aos-dev/go-storage/v3/pkg/iowrap"
+	. "github.com/aos-dev/go-storage/v3/types"
 )
 
-func (s *Storage) delete(ctx context.Context, path string, opt *pairStorageDelete) (err error) {
+func (s *Storage) delete(ctx context.Context, path string, opt pairStorageDelete) (err error) {
 	rp := s.getAbsPath(path)
 
 	err = s.bucket.Object(rp).Delete(ctx)
@@ -21,20 +21,47 @@ func (s *Storage) delete(ctx context.Context, path string, opt *pairStorageDelet
 	}
 	return nil
 }
-func (s *Storage) listDir(ctx context.Context, dir string, opt *pairStorageListDir) (err error) {
-	delimiter := "/"
 
-	rp := s.getAbsPath(dir)
+func (s *Storage) list(ctx context.Context, path string, opt pairStorageList) (oi *ObjectIterator, err error) {
+	input := &objectPageStatus{
+		prefix: s.getAbsPath(path),
+	}
+
+	var nextFn NextObjectFunc
+
+	switch {
+	case opt.ListMode.IsDir():
+		input.delimiter = "/"
+		nextFn = s.nextObjectPageByDir
+	case opt.ListMode.IsPrefix():
+		nextFn = s.nextObjectPageByPrefix
+	default:
+		return nil, fmt.Errorf("invalid list mode")
+	}
+
+	return NewObjectIterator(ctx, nextFn, input), nil
+}
+
+func (s *Storage) metadata(ctx context.Context, opt pairStorageMetadata) (meta *StorageMeta, err error) {
+	meta = NewStorageMeta()
+	meta.Name = s.name
+	meta.WorkDir = s.workDir
+	return
+}
+
+func (s *Storage) nextObjectPageByDir(ctx context.Context, page *ObjectPage) error {
+	input := page.Status.(*objectPageStatus)
 
 	it := s.bucket.Objects(ctx, &gs.Query{
-		Prefix:    rp,
-		Delimiter: delimiter,
+		Prefix:    input.prefix,
+		Delimiter: input.delimiter,
 	})
 
-	for {
+	remaining := 200
+	for remaining > 0 {
 		object, err := it.Next()
 		if err == iterator.Done {
-			return nil
+			return IterateDone
 		}
 		if err != nil {
 			return err
@@ -45,18 +72,14 @@ func (s *Storage) listDir(ctx context.Context, dir string, opt *pairStorageListD
 		// ObjectIterator.Next. When set, no other fields in ObjectAttrs will be
 		// populated.
 		if object.Prefix != "" {
-			if !opt.HasDirFunc {
-				continue
-			}
+			o := s.newObject(true)
+			o.ID = object.Prefix
+			o.Path = s.getRelPath(object.Prefix)
+			o.Mode |= ModeDir
 
-			o := &types.Object{
-				ID:         object.Prefix,
-				Name:       s.getRelPath(object.Prefix),
-				Type:       types.ObjectTypeDir,
-				ObjectMeta: info.NewObjectMeta(),
-			}
+			page.Data = append(page.Data, o)
 
-			opt.DirFunc(o)
+			remaining -= 1
 			continue
 		}
 
@@ -65,19 +88,25 @@ func (s *Storage) listDir(ctx context.Context, dir string, opt *pairStorageListD
 			return err
 		}
 
-		if opt.HasFileFunc {
-			opt.FileFunc(o)
-		}
+		page.Data = append(page.Data, o)
+		remaining -= 1
 	}
-}
-func (s *Storage) listPrefix(ctx context.Context, prefix string, opt *pairStorageListPrefix) (err error) {
-	rp := s.getAbsPath(prefix)
 
-	it := s.bucket.Objects(ctx, &gs.Query{Prefix: rp})
-	for {
+	return nil
+}
+
+func (s *Storage) nextObjectPageByPrefix(ctx context.Context, page *ObjectPage) error {
+	input := page.Status.(*objectPageStatus)
+
+	it := s.bucket.Objects(ctx, &gs.Query{
+		Prefix: input.prefix,
+	})
+
+	remaining := 200
+	for remaining > 0 {
 		object, err := it.Next()
-		if err != nil && err == iterator.Done {
-			return nil
+		if err == iterator.Done {
+			return IterateDone
 		}
 		if err != nil {
 			return err
@@ -88,30 +117,32 @@ func (s *Storage) listPrefix(ctx context.Context, prefix string, opt *pairStorag
 			return err
 		}
 
-		opt.ObjectFunc(o)
+		page.Data = append(page.Data, o)
+		remaining -= 1
 	}
+
+	return nil
 }
-func (s *Storage) metadata(ctx context.Context, opt *pairStorageMetadata) (meta info.StorageMeta, err error) {
-	meta = info.NewStorageMeta()
-	meta.Name = s.name
-	meta.WorkDir = s.workDir
-	return
-}
-func (s *Storage) read(ctx context.Context, path string, opt *pairStorageRead) (rc io.ReadCloser, err error) {
+
+func (s *Storage) read(ctx context.Context, path string, w io.Writer, opt pairStorageRead) (n int64, err error) {
 	rp := s.getAbsPath(path)
+
+	var rc io.ReadCloser
 
 	object := s.bucket.Object(rp)
 	rc, err = object.NewReader(ctx)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	if opt.HasReadCallbackFunc {
-		rc = iowrap.CallbackReadCloser(rc, opt.ReadCallbackFunc)
+	if opt.HasIoCallback {
+		rc = iowrap.CallbackReadCloser(rc, opt.IoCallback)
 	}
-	return
+
+	return io.Copy(w, rc)
 }
-func (s *Storage) stat(ctx context.Context, path string, opt *pairStorageStat) (o *types.Object, err error) {
+
+func (s *Storage) stat(ctx context.Context, path string, opt pairStorageStat) (o *Object, err error) {
 	rp := s.getAbsPath(path)
 
 	attr, err := s.bucket.Object(rp).Attrs(ctx)
@@ -121,27 +152,25 @@ func (s *Storage) stat(ctx context.Context, path string, opt *pairStorageStat) (
 
 	return s.formatFileObject(attr)
 }
-func (s *Storage) write(ctx context.Context, path string, r io.Reader, opt *pairStorageWrite) (err error) {
+
+func (s *Storage) write(ctx context.Context, path string, r io.Reader, size int64, opt pairStorageWrite) (n int64, err error) {
 	rp := s.getAbsPath(path)
 
 	object := s.bucket.Object(rp)
 	w := object.NewWriter(ctx)
 	defer w.Close()
 
-	w.Size = opt.Size
-	if opt.HasChecksum {
-		w.MD5 = []byte(opt.Checksum)
+	w.Size = size
+	if opt.HasContentMd5 {
+		// FIXME: we need to check value's encoding type.
+		w.MD5 = []byte(opt.ContentMd5)
 	}
 	if opt.HasStorageClass {
 		w.StorageClass = opt.StorageClass
 	}
-	if opt.HasReadCallbackFunc {
-		r = iowrap.CallbackReader(r, opt.ReadCallbackFunc)
+	if opt.HasIoCallback {
+		r = iowrap.CallbackReader(r, opt.IoCallback)
 	}
 
-	_, err = io.Copy(w, r)
-	if err != nil {
-		return err
-	}
-	return nil
+	return io.Copy(w, r)
 }

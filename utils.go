@@ -10,19 +10,17 @@ import (
 	"strings"
 
 	gs "cloud.google.com/go/storage"
-	"github.com/aos-dev/go-storage/v2/types/info"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
 
-	"github.com/aos-dev/go-storage/v2"
-	"github.com/aos-dev/go-storage/v2/pkg/credential"
-	"github.com/aos-dev/go-storage/v2/pkg/httpclient"
-	"github.com/aos-dev/go-storage/v2/services"
-	"github.com/aos-dev/go-storage/v2/types"
-	ps "github.com/aos-dev/go-storage/v2/types/pairs"
+	ps "github.com/aos-dev/go-storage/v3/pairs"
+	"github.com/aos-dev/go-storage/v3/pkg/credential"
+	"github.com/aos-dev/go-storage/v3/pkg/httpclient"
+	"github.com/aos-dev/go-storage/v3/services"
+	typ "github.com/aos-dev/go-storage/v3/types"
 )
 
 // Service is the gcs config.
@@ -42,6 +40,8 @@ type Storage struct {
 
 	name    string
 	workDir string
+
+	pairPolicy typ.PairPolicy
 }
 
 // String implements Storager.String
@@ -53,25 +53,25 @@ func (s *Storage) String() string {
 }
 
 // New will create both Servicer and Storager.
-func New(pairs ...*types.Pair) (storage.Servicer, storage.Storager, error) {
+func New(pairs ...typ.Pair) (typ.Servicer, typ.Storager, error) {
 	return newServicerAndStorager(pairs...)
 }
 
 // NewServicer will create Servicer only.
-func NewServicer(pairs ...*types.Pair) (storage.Servicer, error) {
+func NewServicer(pairs ...typ.Pair) (typ.Servicer, error) {
 	return newServicer(pairs...)
 }
 
 // NewStorager will create Storager only.
-func NewStorager(pairs ...*types.Pair) (storage.Storager, error) {
+func NewStorager(pairs ...typ.Pair) (typ.Storager, error) {
 	_, store, err := newServicerAndStorager(pairs...)
 	return store, err
 }
 
-func newServicer(pairs ...*types.Pair) (srv *Service, err error) {
+func newServicer(pairs ...typ.Pair) (srv *Service, err error) {
 	defer func() {
 		if err != nil {
-			err = &services.InitError{Op: services.OpNewServicer, Type: Type, Err: err, Pairs: pairs}
+			err = &services.InitError{Op: "new_servicer", Type: Type, Err: err, Pairs: pairs}
 		}
 	}()
 
@@ -87,15 +87,18 @@ func newServicer(pairs ...*types.Pair) (srv *Service, err error) {
 
 	var credJSON []byte
 
-	credProtocol, cred := opt.Credential.Protocol(), opt.Credential.Value()
-	switch credProtocol {
+	cp, err := credential.Parse(opt.Credential)
+	if err != nil {
+		return nil, err
+	}
+	switch cp.Protocol() {
 	case credential.ProtocolFile:
-		credJSON, err = ioutil.ReadFile(cred[0])
+		credJSON, err = ioutil.ReadFile(cp.File())
 		if err != nil {
 			return nil, err
 		}
 	case credential.ProtocolBase64:
-		credJSON, err = base64.StdEncoding.DecodeString(cred[0])
+		credJSON, err = base64.StdEncoding.DecodeString(cp.Base64())
 		if err != nil {
 			return nil, err
 		}
@@ -126,10 +129,10 @@ func newServicer(pairs ...*types.Pair) (srv *Service, err error) {
 }
 
 // New will create a new aliyun oss service.
-func newServicerAndStorager(pairs ...*types.Pair) (srv *Service, store *Storage, err error) {
+func newServicerAndStorager(pairs ...typ.Pair) (srv *Service, store *Storage, err error) {
 	defer func() {
 		if err != nil {
-			err = &services.InitError{Op: services.OpNewStorager, Type: Type, Err: err, Pairs: pairs}
+			err = &services.InitError{Op: "new_storager", Type: Type, Err: err, Pairs: pairs}
 		}
 	}()
 
@@ -176,7 +179,7 @@ func formatError(err error) error {
 }
 
 // newStorage will create a new client.
-func (s *Service) newStorage(pairs ...*types.Pair) (st *Storage, err error) {
+func (s *Service) newStorage(pairs ...typ.Pair) (st *Storage, err error) {
 	opt, err := parsePairStorageNew(pairs)
 	if err != nil {
 		return nil, err
@@ -235,28 +238,34 @@ func (s *Storage) formatError(op string, err error, path ...string) error {
 	}
 }
 
-func (s *Storage) formatFileObject(v *gs.ObjectAttrs) (o *types.Object, err error) {
-	o = &types.Object{
-		ID:         v.Name,
-		Name:       s.getRelPath(v.Name),
-		Type:       types.ObjectTypeFile,
-		Size:       v.Size,
-		UpdatedAt:  v.Updated,
-		ObjectMeta: info.NewObjectMeta(),
-	}
+func (s *Storage) formatFileObject(v *gs.ObjectAttrs) (o *typ.Object, err error) {
+	o = s.newObject(true)
+	o.ID = v.Name
+	o.Path = s.getRelPath(v.Name)
+	o.Mode |= typ.ModeRead
+
+	o.SetContentLength(v.Size)
+	o.SetLastModified(v.Updated)
 
 	if v.ContentType != "" {
 		o.SetContentType(v.ContentType)
 	}
 	if v.Etag != "" {
-		o.SetETag(v.Etag)
+		o.SetEtag(v.Etag)
 	}
 	if len(v.MD5) > 0 {
-		o.SetContentMD5(base64.StdEncoding.EncodeToString(v.MD5))
-	}
-	if value := v.StorageClass; value != "" {
-		setStorageClass(o.ObjectMeta, value)
+		o.SetContentMd5(base64.StdEncoding.EncodeToString(v.MD5))
 	}
 
+	sm := make(map[string]string)
+	if value := v.StorageClass; value != "" {
+		sm[MetadataStorageClass] = value
+	}
+	o.SetServiceMetadata(sm)
+
 	return
+}
+
+func (s *Storage) newObject(done bool) *typ.Object {
+	return typ.NewObject(s, done)
 }
