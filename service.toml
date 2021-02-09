@@ -1,7 +1,7 @@
 name = "gcs"
 
 [namespace.service.new]
-required = ["credential", "project"]
+required = ["credential", "project_id"]
 optional = ["http_client_options", "pair_policy"]
 
 [namespace.storage.new]
@@ -20,7 +20,7 @@ optional = ["content_md5", "content_type", "io_callback", "storage_class"]
 [pairs.storage_class]
 type = "string"
 
-[pairs.project]
+[pairs.project_id]
 type = "string"
 
 [infos.object.meta.storage-class]

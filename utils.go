@@ -123,8 +123,7 @@ func newServicer(pairs ...typ.Pair) (srv *Service, err error) {
 	}
 
 	srv.service = client
-	srv.projectID = opt.Project
-
+	srv.projectID = opt.ProjectID
 	return
 }
 
