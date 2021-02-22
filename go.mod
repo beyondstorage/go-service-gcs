@@ -8,5 +8,5 @@ require (
 	github.com/aos-dev/go-storage/v3 v3.2.0
 	github.com/google/uuid v1.2.0
 	golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3
-	google.golang.org/api v0.39.0
+	google.golang.org/api v0.40.0
 )
