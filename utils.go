@@ -27,6 +27,8 @@ import (
 type Service struct {
 	service   *gs.Client
 	projectID string
+
+	defaultPairs DefaultServicePairs
 }
 
 // String implements Servicer.String
@@ -41,7 +43,8 @@ type Storage struct {
 	name    string
 	workDir string
 
-	pairPolicy typ.PairPolicy
+	defaultPairs DefaultStoragePairs
+	pairPolicy   typ.PairPolicy
 }
 
 // String implements Storager.String
@@ -124,6 +127,10 @@ func newServicer(pairs ...typ.Pair) (srv *Service, err error) {
 
 	srv.service = client
 	srv.projectID = opt.ProjectID
+
+	if opt.HasDefaultServicePairs {
+		srv.defaultPairs = opt.DefaultServicePairs
+	}
 	return
 }
 
@@ -193,6 +200,12 @@ func (s *Service) newStorage(pairs ...typ.Pair) (st *Storage, err error) {
 		workDir: "/",
 	}
 
+	if opt.HasDefaultStoragePairs {
+		store.defaultPairs = opt.DefaultStoragePairs
+	}
+	if opt.HasPairPolicy {
+		store.pairPolicy = opt.PairPolicy
+	}
 	if opt.HasWorkDir {
 		store.workDir = opt.WorkDir
 	}
