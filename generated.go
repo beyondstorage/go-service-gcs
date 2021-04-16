@@ -422,12 +422,45 @@ func parsePairStorageNew(opts []Pair) (pairStorageNew, error) {
 
 // DefaultStoragePairs is default pairs for specific action
 type DefaultStoragePairs struct {
+    Create   []Pair
 	Delete   []Pair
 	List     []Pair
 	Metadata []Pair
 	Read     []Pair
 	Stat     []Pair
 	Write    []Pair
+}
+
+// pairStorageCreate is the parsed struct
+type pairStorageCreate struct {
+    pairs []Pair
+
+    // Required pairs
+    // Optional pairs
+    // Generated pairs
+}
+
+// parsePairStorageCreate will parse Pair slice into *pairStorageCreate
+func (s *Storage)parsePairStorageCreate(opts []Pair) (pairStorageCreate, error) {
+    result := pairStorageCreate{
+        pairs: opts,
+    }
+
+    for _, v := range opts {
+        switch v.Key {
+        // Required pairs
+        // Optional pairs
+        // Generated pairs
+        default:
+
+            if s.pairPolicy.All || s.pairPolicy.Create {
+                return pairStorageCreate{}, services.NewPairUnsupportedError(v)
+            }
+
+        }
+    }
+
+    return result, nil
 }
 
 // pairStorageDelete is the parsed struct
@@ -660,6 +693,19 @@ func (s *Storage) parsePairStorageWrite(opts []Pair) (pairStorageWrite, error) {
 	}
 
 	return result, nil
+}
+
+// Create will create a new object without any api call.
+//
+// This function will create a context by default.
+func (s *Storage) Create(path string,pairs ...Pair) (o *Object) {
+    pairs = append(pairs, s.defaultPairs.Create...)
+    var opt pairStorageCreate
+
+    // Ignore error while handling local funtions.
+    opt, _ = s.parsePairStorageCreate(pairs)
+
+    return s.create(path, opt)
 }
 
 // Delete will delete an Object from service.
