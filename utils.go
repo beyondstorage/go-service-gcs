@@ -29,6 +29,8 @@ type Service struct {
 	projectID string
 
 	defaultPairs DefaultServicePairs
+
+	typ.UnimplementedServicer
 }
 
 // String implements Servicer.String
@@ -45,6 +47,8 @@ type Storage struct {
 
 	defaultPairs DefaultStoragePairs
 	pairPolicy   typ.PairPolicy
+
+	typ.UnimplementedStorager
 }
 
 // String implements Storager.String

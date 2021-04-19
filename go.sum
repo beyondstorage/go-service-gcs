@@ -43,13 +43,15 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/Xuanwo/templateutils v0.0.0-20201019101431-c73b871118f2/go.mod h1:x0qS7gfgEm24b8V9U+0zBEBAu/VpxZhO/+EWtpgEgDw=
+github.com/Xuanwo/templateutils v0.0.0-20201216100309-46f73cd4e4b1 h1:SQ8kQujQ0yl39YBMU0xZ+yyfxx/qSWfGWlCPNzHp5kw=
 github.com/Xuanwo/templateutils v0.0.0-20201216100309-46f73cd4e4b1/go.mod h1:x0qS7gfgEm24b8V9U+0zBEBAu/VpxZhO/+EWtpgEgDw=
 github.com/aos-dev/go-integration-test/v3 v3.0.0-20210205075620-0b779f4b3afc h1:s8BQqJwWe2yoTGJFOsIxnkwwMsnDqMgkO39yzEP4smw=
 github.com/aos-dev/go-integration-test/v3 v3.0.0-20210205075620-0b779f4b3afc/go.mod h1:2VqxZhJVvI1jKTTERWHfCBMZQaJt10xoEJ+CxbfYZlo=
 github.com/aos-dev/go-storage/v3 v3.0.1-0.20210205074802-e8a5b22166c2/go.mod h1:JznhvyhPDnETfZ3RyWm3mT/S5ic+uuYFWagSIkUZujc=
-github.com/aos-dev/go-storage/v3 v3.4.2 h1:eo63BKlN1sjXmrZAOsps4Lrjxp9M5fKbn2m9d4htxv0=
-github.com/aos-dev/go-storage/v3 v3.4.2/go.mod h1:PZJT0Ta7YxVM5QoYoh8Q/X4I6e/z/7gOJqm85Aib4nY=
+github.com/aos-dev/go-storage/v3 v3.4.3-0.20210417162535-67db0dd18784 h1:eeKDDn+8RPtYuk7lrQC48OtTNeSRF/l9P5YHa/Q3omk=
+github.com/aos-dev/go-storage/v3 v3.4.3-0.20210417162535-67db0dd18784/go.mod h1:PZJT0Ta7YxVM5QoYoh8Q/X4I6e/z/7gOJqm85Aib4nY=
 github.com/aos-dev/specs/go v0.0.0-20210205073047-af8ef94af73d/go.mod h1:XTNlLZtPA1inITyDH5hNnQXVjvvKUvo+lurs5GYB8NA=
+github.com/aos-dev/specs/go v0.0.0-20210312090615-23109627848b h1:qIehSnBbr31ATAckM9u9h6gSz+9PkGqu79vTngx6wPw=
 github.com/aos-dev/specs/go v0.0.0-20210312090615-23109627848b/go.mod h1:XTNlLZtPA1inITyDH5hNnQXVjvvKUvo+lurs5GYB8NA=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
@@ -59,6 +61,7 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cncf/udpa/go v0.0.0-20200629203442-efcf912fb354/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
 github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403/go.mod h1:WmhPx2Nbnhtbo57+VJT5O0JRkEi1Wbu0z5j0R8u5Hbk=
+github.com/dave/dst v0.26.2 h1:lnxLAKI3tx7MgLNVDirFCsDTlTG9nKTk7GcptKcWSwY=
 github.com/dave/dst v0.26.2/go.mod h1:UMDJuIRPfyUCC78eFuB+SV/WI8oDeyFDvM/JR6NI3IU=
 github.com/dave/gopackages v0.0.0-20170318123100-46e7023ec56e/go.mod h1:i00+b/gKdIDIxuLDFob7ustLAVqhsZRk2qVZrArELGQ=
 github.com/dave/jennifer v1.2.0/go.mod h1:fIb+770HOpJ2fmN9EPPKOqm1vMGhB+TwXKMZhrIygKg=
@@ -157,6 +160,7 @@ github.com/jstemmer/go-junit-report v0.9.1 h1:6QPYqodiu3GuPL+7mfx+NwDdp2eTkp9IfE
 github.com/jstemmer/go-junit-report v0.9.1/go.mod h1:Brl9GWCQeLvo8nXZwPNNblvFj/XSXhF0NWZEnDohbsk=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
 github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
+github.com/kevinburke/go-bindata v3.22.0+incompatible h1:/JmqEhIWQ7GRScV0WjX/0tqBrC5D21ALg0H0U/KZ/ts=
 github.com/kevinburke/go-bindata v3.22.0+incompatible/go.mod h1:/pEEZ72flUW2p0yi30bslSp9YqD9pysLxunQDdb2CPM=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
@@ -164,6 +168,7 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
+github.com/pelletier/go-toml v1.8.1 h1:1Nf83orprkJyknT6h7zbuEGUEjcyVlCxSUGTENmNCRM=
 github.com/pelletier/go-toml v1.8.1/go.mod h1:T2/BmBdy8dvIRq1a/8aqjN41wvWlN4lrapLU/GW4pbc=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
