@@ -71,7 +71,7 @@ func WithProjectID(v string) Pair {
 
 // WithSseCustomerKey will apply sse_customer_key value to Options
 // SseCustomerKey is the customer's 32-byte AES-256 key
-func WithSseCustomerKey(v string) Pair {
+func WithSseCustomerKey(v []byte) Pair {
 	return Pair{
 		Key:   pairSseCustomerKey,
 		Value: v,
@@ -598,7 +598,7 @@ type pairStorageRead struct {
 	HasSize           bool
 	Size              int64
 	HasSseCustomerKey bool
-	SseCustomerKey    string
+	SseCustomerKey    []byte
 	// Generated pairs
 }
 
@@ -623,7 +623,7 @@ func (s *Storage) parsePairStorageRead(opts []Pair) (pairStorageRead, error) {
 			result.Size = v.Value.(int64)
 		case pairSseCustomerKey:
 			result.HasSseCustomerKey = true
-			result.SseCustomerKey = v.Value.(string)
+			result.SseCustomerKey = v.Value.([]byte)
 		// Generated pairs
 		default:
 
@@ -682,7 +682,7 @@ type pairStorageWrite struct {
 	HasIoCallback     bool
 	IoCallback        func([]byte)
 	HasSseCustomerKey bool
-	SseCustomerKey    string
+	SseCustomerKey    []byte
 	HasStorageClass   bool
 	StorageClass      string
 	// Generated pairs
@@ -709,7 +709,7 @@ func (s *Storage) parsePairStorageWrite(opts []Pair) (pairStorageWrite, error) {
 			result.IoCallback = v.Value.(func([]byte))
 		case pairSseCustomerKey:
 			result.HasSseCustomerKey = true
-			result.SseCustomerKey = v.Value.(string)
+			result.SseCustomerKey = v.Value.([]byte)
 		case pairStorageClass:
 			result.HasStorageClass = true
 			result.StorageClass = v.Value.(string)

@@ -18,7 +18,7 @@ optional = ["offset", "io_callback", "size", "sse_customer_key"]
 optional = ["content_md5", "content_type", "io_callback", "storage_class", "sse_customer_key"]
 
 [pairs.sse_customer_key]
-type = "string"
+type = "byte_array"
 description = "is the customer's 32-byte AES-256 key"
 
 [pairs.default_service_pairs]
