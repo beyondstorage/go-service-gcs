@@ -138,6 +138,9 @@ func (s *Storage) read(ctx context.Context, path string, w io.Writer, opt pairSt
 	var rc io.ReadCloser
 
 	object := s.bucket.Object(rp)
+	if opt.HasSseCustomerKey {
+		object = object.Key([]byte(opt.SseCustomerKey))
+	}
 	rc, err = object.NewReader(ctx)
 	if err != nil {
 		return 0, err
@@ -171,6 +174,9 @@ func (s *Storage) write(ctx context.Context, path string, r io.Reader, size int6
 	rp := s.getAbsPath(path)
 
 	object := s.bucket.Object(rp)
+	if opt.HasSseCustomerKey {
+		object = object.Key([]byte(opt.SseCustomerKey))
+	}
 	w := object.NewWriter(ctx)
 	defer func() {
 		cerr := w.Close()

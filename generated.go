@@ -29,12 +29,16 @@ const (
 	pairDefaultStoragePairs = "gcs_default_storage_pairs"
 	// ProjectID
 	pairProjectID = "gcs_project_id"
+	// SseCustomerKey is the customer's 32-byte AES-256 key
+	pairSseCustomerKey = "gcs_sse_customer_key"
 	// StorageClass
 	pairStorageClass = "gcs_storage_class"
 )
 
 // Service available metadata.
 const (
+	MetadataSseCustomerKeySha256 = "gcs-sse_customer_key_sha256"
+
 	MetadataStorageClass = "gcs-storage-class"
 )
 
@@ -61,6 +65,15 @@ func WithDefaultStoragePairs(v DefaultStoragePairs) Pair {
 func WithProjectID(v string) Pair {
 	return Pair{
 		Key:   pairProjectID,
+		Value: v,
+	}
+}
+
+// WithSseCustomerKey will apply sse_customer_key value to Options
+// SseCustomerKey is the customer's 32-byte AES-256 key
+func WithSseCustomerKey(v string) Pair {
+	return Pair{
+		Key:   pairSseCustomerKey,
 		Value: v,
 	}
 }
@@ -578,12 +591,14 @@ type pairStorageRead struct {
 
 	// Required pairs
 	// Optional pairs
-	HasIoCallback bool
-	IoCallback    func([]byte)
-	HasOffset     bool
-	Offset        int64
-	HasSize       bool
-	Size          int64
+	HasIoCallback     bool
+	IoCallback        func([]byte)
+	HasOffset         bool
+	Offset            int64
+	HasSize           bool
+	Size              int64
+	HasSseCustomerKey bool
+	SseCustomerKey    string
 	// Generated pairs
 }
 
@@ -606,6 +621,9 @@ func (s *Storage) parsePairStorageRead(opts []Pair) (pairStorageRead, error) {
 		case "size":
 			result.HasSize = true
 			result.Size = v.Value.(int64)
+		case pairSseCustomerKey:
+			result.HasSseCustomerKey = true
+			result.SseCustomerKey = v.Value.(string)
 		// Generated pairs
 		default:
 
@@ -657,14 +675,16 @@ type pairStorageWrite struct {
 
 	// Required pairs
 	// Optional pairs
-	HasContentMd5   bool
-	ContentMd5      string
-	HasContentType  bool
-	ContentType     string
-	HasIoCallback   bool
-	IoCallback      func([]byte)
-	HasStorageClass bool
-	StorageClass    string
+	HasContentMd5     bool
+	ContentMd5        string
+	HasContentType    bool
+	ContentType       string
+	HasIoCallback     bool
+	IoCallback        func([]byte)
+	HasSseCustomerKey bool
+	SseCustomerKey    string
+	HasStorageClass   bool
+	StorageClass      string
 	// Generated pairs
 }
 
@@ -687,6 +707,9 @@ func (s *Storage) parsePairStorageWrite(opts []Pair) (pairStorageWrite, error) {
 		case "io_callback":
 			result.HasIoCallback = true
 			result.IoCallback = v.Value.(func([]byte))
+		case pairSseCustomerKey:
+			result.HasSseCustomerKey = true
+			result.SseCustomerKey = v.Value.(string)
 		case pairStorageClass:
 			result.HasStorageClass = true
 			result.StorageClass = v.Value.(string)
