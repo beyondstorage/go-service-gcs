@@ -12,10 +12,14 @@ optional = ["default_storage_pairs", "pair_policy", "work_dir"]
 optional = ["list_mode"]
 
 [namespace.storage.op.read]
-optional = ["offset", "io_callback", "size"]
+optional = ["offset", "io_callback", "size", "encryption_key"]
 
 [namespace.storage.op.write]
-optional = ["content_md5", "content_type", "io_callback", "storage_class"]
+optional = ["content_md5", "content_type", "io_callback", "storage_class", "encryption_key"]
+
+[pairs.encryption_key]
+type = "byte_array"
+description = "is the customer's 32-byte AES-256 key"
 
 [pairs.default_service_pairs]
 type = "DefaultServicePairs"
@@ -33,3 +37,6 @@ type = "string"
 
 [infos.object.meta.storage-class]
 type = "string"
+
+[infos.object.meta.encryption_key_sha256]
+type = "string" 
