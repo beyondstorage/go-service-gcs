@@ -278,7 +278,7 @@ func (s *Storage) formatFileObject(v *gs.ObjectAttrs) (o *typ.Object, err error)
 		sm[MetadataStorageClass] = value
 	}
 	if value := v.CustomerKeySHA256; value != "" {
-		sm[MetadataSseCustomerKeySha256] = value
+		sm[MetadataEncryptionKeySha256] = value
 	}
 	o.SetServiceMetadata(sm)
 
