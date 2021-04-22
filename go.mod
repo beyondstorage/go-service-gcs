@@ -1,6 +1,6 @@
 module github.com/aos-dev/go-service-gcs
 
-go 1.14
+go 1.15
 
 require (
 	cloud.google.com/go/storage v1.14.0

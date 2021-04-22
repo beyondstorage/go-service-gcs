@@ -1,5 +1,3 @@
-// +build integration_test
-
 package tests
 
 import (
@@ -8,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 
+	gcs "github.com/aos-dev/go-service-gcs"
 	ps "github.com/aos-dev/go-storage/v3/pairs"
 	"github.com/aos-dev/go-storage/v3/types"
-	gcs "github.com/aos-dev/go-service-gcs"
 )
 
 func setupTest(t *testing.T) types.Storager {
