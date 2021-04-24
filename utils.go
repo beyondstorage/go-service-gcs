@@ -273,12 +273,12 @@ func (s *Storage) formatFileObject(v *gs.ObjectAttrs) (o *typ.Object, err error)
 		o.SetContentMd5(base64.StdEncoding.EncodeToString(v.MD5))
 	}
 
-	sm := make(map[string]string)
+	var sm ObjectMetadata
 	if value := v.StorageClass; value != "" {
-		sm[MetadataStorageClass] = value
+		sm.StorageClass = value
 	}
 	if value := v.CustomerKeySHA256; value != "" {
-		sm[MetadataEncryptionKeySha256] = value
+		sm.EncryptionKeySha256 = value
 	}
 	o.SetServiceMetadata(sm)
 

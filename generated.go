@@ -35,12 +35,32 @@ const (
 	pairStorageClass = "gcs_storage_class"
 )
 
-// Service available metadata.
-const (
-	MetadataEncryptionKeySha256 = "gcs-encryption_key_sha256"
+// ObjectMetadata stores service metadata for object.
+type ObjectMetadata struct {
+	// EncryptionKeySha256
+	EncryptionKeySha256 string
+	// StorageClass
+	StorageClass string
+}
 
-	MetadataStorageClass = "gcs-storage-class"
-)
+// GetObjectMetadata will get ObjectMetadata from Object.
+//
+// - This function should not be called by service implementer.
+// - The returning ObjectMetadata is read only and should not be modified.
+func GetObjectMetadata(o *Object) ObjectMetadata {
+	om, ok := o.GetServiceMetadata()
+	if ok {
+		return om.(ObjectMetadata)
+	}
+	return ObjectMetadata{}
+}
+
+// setObjectMetadata will set ObjectMetadata into Object.
+//
+// - This function should only be called once, please make sure all data has been written before set.
+func setObjectMetadata(o *Object, om ObjectMetadata) {
+	o.SetServiceMetadata(om)
+}
 
 // WithDefaultServicePairs will apply default_service_pairs value to Options
 // DefaultServicePairs set default pairs for service actions
