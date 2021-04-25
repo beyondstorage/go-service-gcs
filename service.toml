@@ -23,7 +23,7 @@ description = "is the customer's 32-byte AES-256 key"
 
 [pairs.kms_key_name]
 type = "string"
-description = "is the Cloud KMS key resource. For example, projects/my-pet-project/locations/us-east1/keyRings/my-key-ring/cryptoKeys/my-key."
+description = "is the Cloud KMS key resource. For example, `projects/my-pet-project/locations/us-east1/keyRings/my-key-ring/cryptoKeys/my-key`.\n\nRefer to https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys#add-object-key for more details."
 
 [pairs.default_service_pairs]
 type = "DefaultServicePairs"

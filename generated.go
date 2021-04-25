@@ -29,7 +29,9 @@ const (
 	pairDefaultStoragePairs = "gcs_default_storage_pairs"
 	// EncryptionKey is the customer's 32-byte AES-256 key
 	pairEncryptionKey = "gcs_encryption_key"
-	// KmsKeyName is the Cloud KMS key resource. For example, projects/my-pet-project/locations/us-east1/keyRings/my-key-ring/cryptoKeys/my-key.
+	// KmsKeyName is the Cloud KMS key resource. For example, `projects/my-pet-project/locations/us-east1/keyRings/my-key-ring/cryptoKeys/my-key`.
+	//
+	// Refer to https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys#add-object-key for more details.
 	pairKmsKeyName = "gcs_kms_key_name"
 	// ProjectID
 	pairProjectID = "gcs_project_id"
@@ -92,7 +94,9 @@ func WithEncryptionKey(v []byte) Pair {
 }
 
 // WithKmsKeyName will apply kms_key_name value to Options
-// KmsKeyName is the Cloud KMS key resource. For example, projects/my-pet-project/locations/us-east1/keyRings/my-key-ring/cryptoKeys/my-key.
+// KmsKeyName is the Cloud KMS key resource. For example, `projects/my-pet-project/locations/us-east1/keyRings/my-key-ring/cryptoKeys/my-key`.
+//
+// Refer to https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys#add-object-key for more details.
 func WithKmsKeyName(v string) Pair {
 	return Pair{
 		Key:   pairKmsKeyName,
