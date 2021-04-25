@@ -29,6 +29,10 @@ const (
 	pairDefaultStoragePairs = "gcs_default_storage_pairs"
 	// EncryptionKey is the customer's 32-byte AES-256 key
 	pairEncryptionKey = "gcs_encryption_key"
+	// KmsKeyName is the Cloud KMS key resource. For example, `projects/my-pet-project/locations/us-east1/keyRings/my-key-ring/cryptoKeys/my-key`.
+	//
+	// Refer to https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys#add-object-key for more details.
+	pairKmsKeyName = "gcs_kms_key_name"
 	// ProjectID
 	pairProjectID = "gcs_project_id"
 	// StorageClass
@@ -85,6 +89,17 @@ func WithDefaultStoragePairs(v DefaultStoragePairs) Pair {
 func WithEncryptionKey(v []byte) Pair {
 	return Pair{
 		Key:   pairEncryptionKey,
+		Value: v,
+	}
+}
+
+// WithKmsKeyName will apply kms_key_name value to Options
+// KmsKeyName is the Cloud KMS key resource. For example, `projects/my-pet-project/locations/us-east1/keyRings/my-key-ring/cryptoKeys/my-key`.
+//
+// Refer to https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys#add-object-key for more details.
+func WithKmsKeyName(v string) Pair {
+	return Pair{
+		Key:   pairKmsKeyName,
 		Value: v,
 	}
 }
@@ -703,6 +718,8 @@ type pairStorageWrite struct {
 	EncryptionKey    []byte
 	HasIoCallback    bool
 	IoCallback       func([]byte)
+	HasKmsKeyName    bool
+	KmsKeyName       string
 	HasStorageClass  bool
 	StorageClass     string
 	// Generated pairs
@@ -730,6 +747,9 @@ func (s *Storage) parsePairStorageWrite(opts []Pair) (pairStorageWrite, error) {
 		case "io_callback":
 			result.HasIoCallback = true
 			result.IoCallback = v.Value.(func([]byte))
+		case pairKmsKeyName:
+			result.HasKmsKeyName = true
+			result.KmsKeyName = v.Value.(string)
 		case pairStorageClass:
 			result.HasStorageClass = true
 			result.StorageClass = v.Value.(string)

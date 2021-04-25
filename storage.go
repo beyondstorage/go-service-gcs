@@ -193,6 +193,9 @@ func (s *Storage) write(ctx context.Context, path string, r io.Reader, size int6
 	if opt.HasStorageClass {
 		w.StorageClass = opt.StorageClass
 	}
+	if opt.HasKmsKeyName {
+		w.KMSKeyName = opt.KmsKeyName
+	}
 	if opt.HasIoCallback {
 		r = iowrap.CallbackReader(r, opt.IoCallback)
 	}
