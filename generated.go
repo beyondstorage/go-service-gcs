@@ -66,7 +66,8 @@ func setObjectMetadata(o *Object, om ObjectMetadata) {
 	o.SetServiceMetadata(om)
 }
 
-// WithDefaultServicePairs will apply default_service_pairs value to Options
+// WithDefaultServicePairs will apply default_service_pairs value to Options.
+//
 // DefaultServicePairs set default pairs for service actions
 func WithDefaultServicePairs(v DefaultServicePairs) Pair {
 	return Pair{
@@ -75,7 +76,8 @@ func WithDefaultServicePairs(v DefaultServicePairs) Pair {
 	}
 }
 
-// WithDefaultStoragePairs will apply default_storage_pairs value to Options
+// WithDefaultStoragePairs will apply default_storage_pairs value to Options.
+//
 // DefaultStoragePairs set default pairs for storager actions
 func WithDefaultStoragePairs(v DefaultStoragePairs) Pair {
 	return Pair{
@@ -84,7 +86,8 @@ func WithDefaultStoragePairs(v DefaultStoragePairs) Pair {
 	}
 }
 
-// WithEncryptionKey will apply encryption_key value to Options
+// WithEncryptionKey will apply encryption_key value to Options.
+//
 // EncryptionKey is the customer's 32-byte AES-256 key
 func WithEncryptionKey(v []byte) Pair {
 	return Pair{
@@ -93,7 +96,8 @@ func WithEncryptionKey(v []byte) Pair {
 	}
 }
 
-// WithKmsKeyName will apply kms_key_name value to Options
+// WithKmsKeyName will apply kms_key_name value to Options.
+//
 // KmsKeyName is the Cloud KMS key resource. For example, `projects/my-pet-project/locations/us-east1/keyRings/my-key-ring/cryptoKeys/my-key`.
 //
 // Refer to https://cloud.google.com/storage/docs/encryption/using-customer-managed-keys#add-object-key for more details.
@@ -104,7 +108,8 @@ func WithKmsKeyName(v string) Pair {
 	}
 }
 
-// WithProjectID will apply project_id value to Options
+// WithProjectID will apply project_id value to Options.
+//
 // ProjectID
 func WithProjectID(v string) Pair {
 	return Pair{
@@ -113,7 +118,8 @@ func WithProjectID(v string) Pair {
 	}
 }
 
-// WithStorageClass will apply storage_class value to Options
+// WithStorageClass will apply storage_class value to Options.
+//
 // StorageClass
 func WithStorageClass(v string) Pair {
 	return Pair{

@@ -2,6 +2,7 @@ package gcs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 
@@ -24,6 +25,10 @@ func (s *Storage) delete(ctx context.Context, path string, opt pairStorageDelete
 	rp := s.getAbsPath(path)
 
 	err = s.bucket.Object(rp).Delete(ctx)
+	if err != nil && errors.Is(err, gs.ErrObjectNotExist) {
+		// omit `ErrObjectNotExist` error, ref: https://github.com/aos-dev/specs/blob/master/rfcs/46-idempotent-delete.md
+		err = nil
+	}
 	if err != nil {
 		return err
 	}
