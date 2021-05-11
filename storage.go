@@ -3,13 +3,13 @@ package gcs
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 
 	gs "cloud.google.com/go/storage"
 	"google.golang.org/api/iterator"
 
 	"github.com/aos-dev/go-storage/v3/pkg/iowrap"
+	"github.com/aos-dev/go-storage/v3/services"
 	. "github.com/aos-dev/go-storage/v3/types"
 )
 
@@ -49,7 +49,7 @@ func (s *Storage) list(ctx context.Context, path string, opt pairStorageList) (o
 	case opt.ListMode.IsPrefix():
 		nextFn = s.nextObjectPageByPrefix
 	default:
-		return nil, fmt.Errorf("invalid list mode")
+		return nil, services.ListModeInvalidError{Actual: opt.ListMode}
 	}
 
 	return NewObjectIterator(ctx, nextFn, input), nil
