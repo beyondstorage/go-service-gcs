@@ -183,10 +183,10 @@ func parsePairServiceNew(opts []Pair) (pairServiceNew, error) {
 		}
 	}
 	if !result.HasCredential {
-		return pairServiceNew{}, services.NewPairRequiredError("credential")
+		return pairServiceNew{}, services.PairRequiredError{Keys: []string{"credential"}}
 	}
 	if !result.HasProjectID {
-		return pairServiceNew{}, services.NewPairRequiredError(pairProjectID)
+		return pairServiceNew{}, services.PairRequiredError{Keys: []string{pairProjectID}}
 	}
 
 	return result, nil
@@ -476,7 +476,7 @@ func parsePairStorageNew(opts []Pair) (pairStorageNew, error) {
 		}
 	}
 	if !result.HasName {
-		return pairStorageNew{}, services.NewPairRequiredError("name")
+		return pairStorageNew{}, services.PairRequiredError{Keys: []string{"name"}}
 	}
 
 	return result, nil
@@ -516,7 +516,7 @@ func (s *Storage) parsePairStorageCreate(opts []Pair) (pairStorageCreate, error)
 		default:
 
 			if s.pairPolicy.All || s.pairPolicy.Create {
-				return pairStorageCreate{}, services.NewPairUnsupportedError(v)
+				return pairStorageCreate{}, services.PairUnsupportedError{Pair: v}
 			}
 
 		}
@@ -548,7 +548,7 @@ func (s *Storage) parsePairStorageDelete(opts []Pair) (pairStorageDelete, error)
 		default:
 
 			if s.pairPolicy.All || s.pairPolicy.Delete {
-				return pairStorageDelete{}, services.NewPairUnsupportedError(v)
+				return pairStorageDelete{}, services.PairUnsupportedError{Pair: v}
 			}
 
 		}
@@ -585,7 +585,7 @@ func (s *Storage) parsePairStorageList(opts []Pair) (pairStorageList, error) {
 		default:
 
 			if s.pairPolicy.All || s.pairPolicy.List {
-				return pairStorageList{}, services.NewPairUnsupportedError(v)
+				return pairStorageList{}, services.PairUnsupportedError{Pair: v}
 			}
 
 		}
@@ -617,7 +617,7 @@ func (s *Storage) parsePairStorageMetadata(opts []Pair) (pairStorageMetadata, er
 		default:
 
 			if s.pairPolicy.All || s.pairPolicy.Metadata {
-				return pairStorageMetadata{}, services.NewPairUnsupportedError(v)
+				return pairStorageMetadata{}, services.PairUnsupportedError{Pair: v}
 			}
 
 		}
@@ -669,7 +669,7 @@ func (s *Storage) parsePairStorageRead(opts []Pair) (pairStorageRead, error) {
 		default:
 
 			if s.pairPolicy.All || s.pairPolicy.Read {
-				return pairStorageRead{}, services.NewPairUnsupportedError(v)
+				return pairStorageRead{}, services.PairUnsupportedError{Pair: v}
 			}
 
 		}
@@ -701,7 +701,7 @@ func (s *Storage) parsePairStorageStat(opts []Pair) (pairStorageStat, error) {
 		default:
 
 			if s.pairPolicy.All || s.pairPolicy.Stat {
-				return pairStorageStat{}, services.NewPairUnsupportedError(v)
+				return pairStorageStat{}, services.PairUnsupportedError{Pair: v}
 			}
 
 		}
@@ -763,7 +763,7 @@ func (s *Storage) parsePairStorageWrite(opts []Pair) (pairStorageWrite, error) {
 		default:
 
 			if s.pairPolicy.All || s.pairPolicy.Write {
-				return pairStorageWrite{}, services.NewPairUnsupportedError(v)
+				return pairStorageWrite{}, services.PairUnsupportedError{Pair: v}
 			}
 
 		}
@@ -933,4 +933,9 @@ func (s *Storage) WriteWithContext(ctx context.Context, path string, r io.Reader
 	}
 
 	return s.write(ctx, path, r, size, opt)
+}
+
+func init() {
+	services.RegisterServicer(Type, NewServicer)
+	services.RegisterStorager(Type, NewStorager)
 }
