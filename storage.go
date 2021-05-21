@@ -8,9 +8,9 @@ import (
 	gs "cloud.google.com/go/storage"
 	"google.golang.org/api/iterator"
 
-	"github.com/aos-dev/go-storage/v3/pkg/iowrap"
-	"github.com/aos-dev/go-storage/v3/services"
-	. "github.com/aos-dev/go-storage/v3/types"
+	"github.com/beyondstorage/go-storage/v4/pkg/iowrap"
+	"github.com/beyondstorage/go-storage/v4/services"
+	. "github.com/beyondstorage/go-storage/v4/types"
 )
 
 func (s *Storage) create(path string, opt pairStorageCreate) (o *Object) {
@@ -26,7 +26,8 @@ func (s *Storage) delete(ctx context.Context, path string, opt pairStorageDelete
 
 	err = s.bucket.Object(rp).Delete(ctx)
 	if err != nil && errors.Is(err, gs.ErrObjectNotExist) {
-		// omit `ErrObjectNotExist` error, ref: https://github.com/aos-dev/specs/blob/master/rfcs/46-idempotent-delete.md
+		// Omit `ErrObjectNotExist` error here.
+		// ref: [GSP-46](https://github.com/beyondstorage/specs/blob/master/rfcs/46-idempotent-delete.md)
 		err = nil
 	}
 	if err != nil {
@@ -55,7 +56,7 @@ func (s *Storage) list(ctx context.Context, path string, opt pairStorageList) (o
 	return NewObjectIterator(ctx, nextFn, input), nil
 }
 
-func (s *Storage) metadata(ctx context.Context, opt pairStorageMetadata) (meta *StorageMeta, err error) {
+func (s *Storage) metadata(opt pairStorageMetadata) (meta *StorageMeta) {
 	meta = NewStorageMeta()
 	meta.Name = s.name
 	meta.WorkDir = s.workDir

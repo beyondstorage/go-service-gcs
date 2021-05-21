@@ -16,11 +16,11 @@ import (
 	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
 
-	ps "github.com/aos-dev/go-storage/v3/pairs"
-	"github.com/aos-dev/go-storage/v3/pkg/credential"
-	"github.com/aos-dev/go-storage/v3/pkg/httpclient"
-	"github.com/aos-dev/go-storage/v3/services"
-	typ "github.com/aos-dev/go-storage/v3/types"
+	ps "github.com/beyondstorage/go-storage/v4/pairs"
+	"github.com/beyondstorage/go-storage/v4/pkg/credential"
+	"github.com/beyondstorage/go-storage/v4/pkg/httpclient"
+	"github.com/beyondstorage/go-storage/v4/services"
+	typ "github.com/beyondstorage/go-storage/v4/types"
 )
 
 // Service is the gcs config.
@@ -163,7 +163,7 @@ const (
 
 // ref: https://cloud.google.com/storage/docs/json_api/v1/status-codes
 func formatError(err error) error {
-	if _, ok := err.(services.AosError); ok {
+	if _, ok := err.(services.InternalError); ok {
 		return err
 	}
 
