@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - storage: Idempotent storager delete operation (#26)
 - *: Implement GSP-73 Organization rename (#29)
 
+### Upgraded
+
+- build(deps): Bump google.golang.org/api to 0.47.0 (#28)
+
 ## v1.0.0 - 2021-04-24
 
 ### Added
