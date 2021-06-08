@@ -8,5 +8,5 @@ require (
 	github.com/beyondstorage/go-storage/v4 v4.0.1-0.20210530044854-1c928ddbe52d
 	github.com/google/uuid v1.2.0
 	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
-	google.golang.org/api v0.47.0
+	google.golang.org/api v0.48.0
 )
