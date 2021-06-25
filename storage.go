@@ -244,6 +244,7 @@ func (s *Storage) stat(ctx context.Context, path string, opt pairStorageStat) (o
 	}
 
 	if opt.HasObjectMode && opt.ObjectMode.IsDir() {
+		o.Path = path
 		o.Mode.Add(ModeDir)
 	}
 
