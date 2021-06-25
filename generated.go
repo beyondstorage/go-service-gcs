@@ -829,17 +829,9 @@ func (s *Storage) parsePairStorageRead(opts []Pair) (pairStorageRead, error) {
 
 // pairStorageStat is the parsed struct
 type pairStorageStat struct {
-	pairs            []Pair
-	HasContentMd5    bool
-	ContentMd5       string
-	HasEncryptionKey bool
-	EncryptionKey    []byte
-	HasKmsKeyName    bool
-	KmsKeyName       string
-	HasObjectMode    bool
-	ObjectMode       ObjectMode
-	HasStorageClass  bool
-	StorageClass     string
+	pairs         []Pair
+	HasObjectMode bool
+	ObjectMode    ObjectMode
 }
 
 // parsePairStorageStat will parse Pair slice into *pairStorageStat
@@ -850,40 +842,12 @@ func (s *Storage) parsePairStorageStat(opts []Pair) (pairStorageStat, error) {
 
 	for _, v := range opts {
 		switch v.Key {
-		case "content_md5":
-			if result.HasContentMd5 {
-				continue
-			}
-			result.HasContentMd5 = true
-			result.ContentMd5 = v.Value.(string)
-			continue
-		case "encryption_key":
-			if result.HasEncryptionKey {
-				continue
-			}
-			result.HasEncryptionKey = true
-			result.EncryptionKey = v.Value.([]byte)
-			continue
-		case "kms_key_name":
-			if result.HasKmsKeyName {
-				continue
-			}
-			result.HasKmsKeyName = true
-			result.KmsKeyName = v.Value.(string)
-			continue
 		case "object_mode":
 			if result.HasObjectMode {
 				continue
 			}
 			result.HasObjectMode = true
 			result.ObjectMode = v.Value.(ObjectMode)
-			continue
-		case "storage_class":
-			if result.HasStorageClass {
-				continue
-			}
-			result.HasStorageClass = true
-			result.StorageClass = v.Value.(string)
 			continue
 		default:
 			return pairStorageStat{}, services.PairUnsupportedError{Pair: v}
