@@ -50,6 +50,7 @@ type Storage struct {
 	features     StorageFeatures
 
 	typ.UnimplementedStorager
+	typ.UnimplementedDirer
 }
 
 // String implements Storager.String
