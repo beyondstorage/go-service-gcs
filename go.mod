@@ -7,6 +7,6 @@ require (
 	github.com/beyondstorage/go-integration-test/v4 v4.1.1
 	github.com/beyondstorage/go-storage/v4 v4.2.0
 	github.com/google/uuid v1.2.0
-	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
-	google.golang.org/api v0.47.0
+	golang.org/x/oauth2 v0.0.0-20210615190721-d04028783cf1
+	google.golang.org/api v0.49.0
 )
