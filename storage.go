@@ -8,21 +8,75 @@ import (
 	gs "cloud.google.com/go/storage"
 	"google.golang.org/api/iterator"
 
+	ps "github.com/beyondstorage/go-storage/v4/pairs"
 	"github.com/beyondstorage/go-storage/v4/pkg/iowrap"
 	"github.com/beyondstorage/go-storage/v4/services"
 	. "github.com/beyondstorage/go-storage/v4/types"
 )
 
 func (s *Storage) create(path string, opt pairStorageCreate) (o *Object) {
-	o = s.newObject(false)
-	o.Mode = ModeRead
-	o.ID = s.getAbsPath(path)
+	rp := s.getAbsPath(path)
+
+	if opt.HasObjectMode && opt.ObjectMode.IsDir() {
+		if !s.features.VirtualDir {
+			return
+		}
+		// Add `/` at the end of path to simulate a directory.
+		rp += "/"
+		o = s.newObject(true)
+		o.Mode = ModeDir
+	} else {
+		o = s.newObject(false)
+		o.Mode = ModeRead
+	}
+
+	o.ID = rp
 	o.Path = path
 	return o
 }
 
+func (s *Storage) createDir(ctx context.Context, path string, opt pairStorageCreateDir) (o *Object, err error) {
+	if !s.features.VirtualDir {
+		err = NewOperationNotImplementedError("create_dir")
+		return
+	}
+
+	rp := s.getAbsPath(path)
+
+	// Add `/` at the end of `path` to simulate a directory.
+	// ref: https://cloud.google.com/storage/docs/naming-objects
+	rp += "/"
+
+	object := s.bucket.Object(rp)
+	w := object.NewWriter(ctx)
+	w.Size = 0
+	if opt.HasStorageClass {
+		w.StorageClass = opt.StorageClass
+	}
+
+	cerr := w.Close()
+	if cerr != nil {
+		err = cerr
+	}
+
+	o = s.newObject(true)
+	o.ID = rp
+	o.Path = path
+	o.Mode |= ModeDir
+	return
+}
+
 func (s *Storage) delete(ctx context.Context, path string, opt pairStorageDelete) (err error) {
 	rp := s.getAbsPath(path)
+
+	if opt.HasObjectMode && opt.ObjectMode.IsDir() {
+		if !s.features.VirtualDir {
+			err = services.PairUnsupportedError{Pair: ps.WithObjectMode(opt.ObjectMode)}
+			return
+		}
+
+		rp += "/"
+	}
 
 	err = s.bucket.Object(rp).Delete(ctx)
 	if err != nil && errors.Is(err, gs.ErrObjectNotExist) {
@@ -168,12 +222,31 @@ func (s *Storage) read(ctx context.Context, path string, w io.Writer, opt pairSt
 func (s *Storage) stat(ctx context.Context, path string, opt pairStorageStat) (o *Object, err error) {
 	rp := s.getAbsPath(path)
 
+	if opt.HasObjectMode && opt.ObjectMode.IsDir() {
+		if !s.features.VirtualDir {
+			err = services.PairUnsupportedError{Pair: ps.WithObjectMode(opt.ObjectMode)}
+			return
+		}
+
+		rp += "/"
+	}
+
 	attr, err := s.bucket.Object(rp).Attrs(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.formatFileObject(attr)
+	o, err = s.formatFileObject(attr)
+	if err != nil {
+		return nil, err
+	}
+
+	if opt.HasObjectMode && opt.ObjectMode.IsDir() {
+		o.Path = path
+		o.Mode.Add(ModeDir)
+	}
+
+	return o, nil
 }
 
 func (s *Storage) write(ctx context.Context, path string, r io.Reader, size int64, opt pairStorageWrite) (n int64, err error) {

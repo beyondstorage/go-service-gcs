@@ -50,6 +50,7 @@ type Storage struct {
 	features     StorageFeatures
 
 	typ.UnimplementedStorager
+	typ.UnimplementedDirer
 }
 
 // String implements Storager.String
@@ -276,14 +277,14 @@ func (s *Storage) formatFileObject(v *gs.ObjectAttrs) (o *typ.Object, err error)
 		o.SetContentMd5(base64.StdEncoding.EncodeToString(v.MD5))
 	}
 
-	var sm ObjectMetadata
+	var sm ObjectSystemMetadata
 	if value := v.StorageClass; value != "" {
 		sm.StorageClass = value
 	}
 	if value := v.CustomerKeySHA256; value != "" {
 		sm.EncryptionKeySha256 = value
 	}
-	o.SetServiceMetadata(sm)
+	o.SetSystemMetadata(sm)
 
 	return
 }
