@@ -21,7 +21,7 @@ func (s *Storage) create(path string, opt pairStorageCreate) (o *Object) {
 		if !s.features.VirtualDir {
 			return
 		}
-
+		// Add `/` at the end of path to simulate a directory.
 		rp += "/"
 		o = s.newObject(true)
 		o.Mode = ModeDir
@@ -49,16 +49,14 @@ func (s *Storage) createDir(ctx context.Context, path string, opt pairStorageCre
 
 	object := s.bucket.Object(rp)
 	w := object.NewWriter(ctx)
-	defer func() {
-		cerr := w.Close()
-		if cerr != nil {
-			err = cerr
-		}
-	}()
-
 	w.Size = 0
 	if opt.HasStorageClass {
 		w.StorageClass = opt.StorageClass
+	}
+
+	cerr := w.Close()
+	if cerr != nil {
+		err = cerr
 	}
 
 	o = s.newObject(true)
