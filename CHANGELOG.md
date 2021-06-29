@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - *: Implement GSP-109: Redesign Features (#35)
 - *: Implement GSP-117 Rename Service to System as the Opposite to Global (#35)
 
+### Upgraded
+
+- build(deps): Bump google.golang.org/api to 0.49.0 (#34)
+
 ## [v2.0.0] - 2021-05-24
 
 ### Added
