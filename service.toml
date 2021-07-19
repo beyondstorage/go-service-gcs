@@ -42,7 +42,7 @@ type = "StorageFeatures"
 description = "set storage features"
 
 [pairs.encryption_key]
-type = "byte_array"
+type = "[]byte"
 description = "is the customer's 32-byte AES-256 key"
 
 [pairs.kms_key_name]
