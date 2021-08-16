@@ -115,14 +115,14 @@ func newServicer(pairs ...typ.Pair) (srv *Service, err error) {
 		return nil, services.PairUnsupportedError{Pair: ps.WithCredential(opt.Credential)}
 	}
 
-	credOptions := []option.ClientOption{
+	clientOptions := []option.ClientOption{
 		option.WithScopes(gs.ScopeFullControl),
 	}
 	if len(credJSON) > 0 {
-		credOptions = append(credOptions, option.WithCredentialsJSON(credJSON))
+		clientOptions = append(clientOptions, option.WithCredentialsJSON(credJSON))
 	}
 
-	transport, err := googleHttp.NewTransport(ctx, hc.Transport, credOptions...)
+	transport, err := googleHttp.NewTransport(ctx, hc.Transport, clientOptions...)
 	if err != nil {
 		return nil, err
 	}
