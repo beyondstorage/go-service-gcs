@@ -2,11 +2,9 @@ package gcs
 
 import (
 	"context"
-
-	"google.golang.org/api/iterator"
-
 	ps "github.com/beyondstorage/go-storage/v4/pairs"
 	typ "github.com/beyondstorage/go-storage/v4/types"
+	"google.golang.org/api/iterator"
 )
 
 func (s *Service) create(ctx context.Context, name string, opt pairServiceCreate) (store typ.Storager, err error) {
@@ -47,7 +45,6 @@ func (s *Service) list(ctx context.Context, opt pairServiceList) (it *typ.Storag
 
 func (s *Service) nextStoragePage(ctx context.Context, page *typ.StoragerPage) error {
 	it := s.service.Buckets(ctx, s.projectID)
-
 	for {
 		bucket, err := it.Next()
 		if err == iterator.Done {
@@ -56,12 +53,10 @@ func (s *Service) nextStoragePage(ctx context.Context, page *typ.StoragerPage) e
 		if err != nil {
 			return err
 		}
-
 		store, err := s.newStorage(ps.WithName(bucket.Name))
 		if err != nil {
 			return err
 		}
-
 		page.Data = append(page.Data, store)
 	}
 }

@@ -6,17 +6,15 @@ import (
 	"io"
 
 	gs "cloud.google.com/go/storage"
-	"google.golang.org/api/iterator"
-
 	ps "github.com/beyondstorage/go-storage/v4/pairs"
 	"github.com/beyondstorage/go-storage/v4/pkg/iowrap"
 	"github.com/beyondstorage/go-storage/v4/services"
 	. "github.com/beyondstorage/go-storage/v4/types"
+	"google.golang.org/api/iterator"
 )
 
 func (s *Storage) create(path string, opt pairStorageCreate) (o *Object) {
 	rp := s.getAbsPath(path)
-
 	if opt.HasObjectMode && opt.ObjectMode.IsDir() {
 		if !s.features.VirtualDir {
 			return
@@ -29,7 +27,6 @@ func (s *Storage) create(path string, opt pairStorageCreate) (o *Object) {
 		o = s.newObject(false)
 		o.Mode = ModeRead
 	}
-
 	o.ID = rp
 	o.Path = path
 	return o
@@ -40,25 +37,20 @@ func (s *Storage) createDir(ctx context.Context, path string, opt pairStorageCre
 		err = NewOperationNotImplementedError("create_dir")
 		return
 	}
-
 	rp := s.getAbsPath(path)
-
 	// Add `/` at the end of `path` to simulate a directory.
 	// ref: https://cloud.google.com/storage/docs/naming-objects
 	rp += "/"
-
 	object := s.bucket.Object(rp)
 	w := object.NewWriter(ctx)
 	w.Size = 0
 	if opt.HasStorageClass {
 		w.StorageClass = opt.StorageClass
 	}
-
 	cerr := w.Close()
 	if cerr != nil {
 		err = cerr
 	}
-
 	o = s.newObject(true)
 	o.ID = rp
 	o.Path = path
@@ -68,16 +60,13 @@ func (s *Storage) createDir(ctx context.Context, path string, opt pairStorageCre
 
 func (s *Storage) delete(ctx context.Context, path string, opt pairStorageDelete) (err error) {
 	rp := s.getAbsPath(path)
-
 	if opt.HasObjectMode && opt.ObjectMode.IsDir() {
 		if !s.features.VirtualDir {
 			err = services.PairUnsupportedError{Pair: ps.WithObjectMode(opt.ObjectMode)}
 			return
 		}
-
 		rp += "/"
 	}
-
 	err = s.bucket.Object(rp).Delete(ctx)
 	if err != nil && errors.Is(err, gs.ErrObjectNotExist) {
 		// Omit `ErrObjectNotExist` error here.
@@ -94,15 +83,12 @@ func (s *Storage) list(ctx context.Context, path string, opt pairStorageList) (o
 	input := &objectPageStatus{
 		prefix: s.getAbsPath(path),
 	}
-
 	if !opt.HasListMode {
 		// Support `ListModePrefix` as the default `ListMode`.
 		// ref: [GSP-654](https://github.com/beyondstorage/go-storage/blob/master/docs/rfcs/654-unify-list-behavior.md)
 		opt.ListMode = ListModePrefix
 	}
-
 	var nextFn NextObjectFunc
-
 	switch {
 	case opt.ListMode.IsDir():
 		input.delimiter = "/"
@@ -112,7 +98,6 @@ func (s *Storage) list(ctx context.Context, path string, opt pairStorageList) (o
 	default:
 		return nil, services.ListModeInvalidError{Actual: opt.ListMode}
 	}
-
 	return NewObjectIterator(ctx, nextFn, input), nil
 }
 
@@ -125,12 +110,10 @@ func (s *Storage) metadata(opt pairStorageMetadata) (meta *StorageMeta) {
 
 func (s *Storage) nextObjectPageByDir(ctx context.Context, page *ObjectPage) error {
 	input := page.Status.(*objectPageStatus)
-
 	it := s.bucket.Objects(ctx, &gs.Query{
 		Prefix:    input.prefix,
 		Delimiter: input.delimiter,
 	})
-
 	remaining := 200
 	for remaining > 0 {
 		object, err := it.Next()
@@ -140,7 +123,6 @@ func (s *Storage) nextObjectPageByDir(ctx context.Context, page *ObjectPage) err
 		if err != nil {
 			return err
 		}
-
 		// Prefix is set only for ObjectAttrs which represent synthetic "directory
 		// entries" when iterating over buckets using Query.Delimiter. See
 		// ObjectIterator.Next. When set, no other fields in ObjectAttrs will be
@@ -150,32 +132,25 @@ func (s *Storage) nextObjectPageByDir(ctx context.Context, page *ObjectPage) err
 			o.ID = object.Prefix
 			o.Path = s.getRelPath(object.Prefix)
 			o.Mode |= ModeDir
-
 			page.Data = append(page.Data, o)
-
 			remaining -= 1
 			continue
 		}
-
 		o, err := s.formatFileObject(object)
 		if err != nil {
 			return err
 		}
-
 		page.Data = append(page.Data, o)
 		remaining -= 1
 	}
-
 	return nil
 }
 
 func (s *Storage) nextObjectPageByPrefix(ctx context.Context, page *ObjectPage) error {
 	input := page.Status.(*objectPageStatus)
-
 	it := s.bucket.Objects(ctx, &gs.Query{
 		Prefix: input.prefix,
 	})
-
 	remaining := 200
 	for remaining > 0 {
 		object, err := it.Next()
@@ -185,24 +160,19 @@ func (s *Storage) nextObjectPageByPrefix(ctx context.Context, page *ObjectPage) 
 		if err != nil {
 			return err
 		}
-
 		o, err := s.formatFileObject(object)
 		if err != nil {
 			return err
 		}
-
 		page.Data = append(page.Data, o)
 		remaining -= 1
 	}
-
 	return nil
 }
 
 func (s *Storage) read(ctx context.Context, path string, w io.Writer, opt pairStorageRead) (n int64, err error) {
 	rp := s.getAbsPath(path)
-
 	var rc io.ReadCloser
-
 	object := s.bucket.Object(rp)
 	if opt.HasEncryptionKey {
 		object = object.Key(opt.EncryptionKey)
@@ -217,47 +187,38 @@ func (s *Storage) read(ctx context.Context, path string, w io.Writer, opt pairSt
 			err = cerr
 		}
 	}()
-
 	if opt.HasIoCallback {
 		rc = iowrap.CallbackReadCloser(rc, opt.IoCallback)
 	}
-
 	return io.Copy(w, rc)
 }
 
 func (s *Storage) stat(ctx context.Context, path string, opt pairStorageStat) (o *Object, err error) {
 	rp := s.getAbsPath(path)
-
 	if opt.HasObjectMode && opt.ObjectMode.IsDir() {
 		if !s.features.VirtualDir {
 			err = services.PairUnsupportedError{Pair: ps.WithObjectMode(opt.ObjectMode)}
 			return
 		}
-
 		rp += "/"
 	}
-
 	attr, err := s.bucket.Object(rp).Attrs(ctx)
 	if err != nil {
 		return nil, err
 	}
-
 	o, err = s.formatFileObject(attr)
 	if err != nil {
 		return nil, err
 	}
-
 	if opt.HasObjectMode && opt.ObjectMode.IsDir() {
 		o.Path = path
 		o.Mode.Add(ModeDir)
 	}
-
 	return o, nil
 }
 
 func (s *Storage) write(ctx context.Context, path string, r io.Reader, size int64, opt pairStorageWrite) (n int64, err error) {
 	rp := s.getAbsPath(path)
-
 	object := s.bucket.Object(rp)
 	if opt.HasEncryptionKey {
 		object = object.Key(opt.EncryptionKey)
@@ -269,7 +230,6 @@ func (s *Storage) write(ctx context.Context, path string, r io.Reader, size int6
 			err = cerr
 		}
 	}()
-
 	w.Size = size
 	if opt.HasContentMd5 {
 		// FIXME: we need to check value's encoding type.
@@ -284,6 +244,5 @@ func (s *Storage) write(ctx context.Context, path string, r io.Reader, size int6
 	if opt.HasIoCallback {
 		r = iowrap.CallbackReader(r, opt.IoCallback)
 	}
-
 	return io.Copy(w, r)
 }
