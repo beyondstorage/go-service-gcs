@@ -10,15 +10,15 @@ import (
 	"strings"
 
 	gs "cloud.google.com/go/storage"
-	"google.golang.org/api/googleapi"
-	"google.golang.org/api/option"
-	googleHttp "google.golang.org/api/transport/http"
-
 	ps "github.com/beyondstorage/go-storage/v4/pairs"
 	"github.com/beyondstorage/go-storage/v4/pkg/credential"
 	"github.com/beyondstorage/go-storage/v4/pkg/httpclient"
 	"github.com/beyondstorage/go-storage/v4/services"
 	typ "github.com/beyondstorage/go-storage/v4/types"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/googleapi"
+	"google.golang.org/api/option"
 )
 
 // Service is the gcs config.
@@ -115,19 +115,26 @@ func newServicer(pairs ...typ.Pair) (srv *Service, err error) {
 		return nil, services.PairUnsupportedError{Pair: ps.WithCredential(opt.Credential)}
 	}
 
-	clientOptions := []option.ClientOption{
-		option.WithScopes(gs.ScopeFullControl),
-	}
+	var creds *google.Credentials
 	if len(credJSON) > 0 {
-		clientOptions = append(clientOptions, option.WithCredentialsJSON(credJSON))
+		// Loading token source from binary data.
+		creds, err = google.CredentialsFromJSON(ctx, credJSON, gs.ScopeFullControl)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		// Loading token source from environment.
+		creds, err = google.FindDefaultCredentials(ctx, gs.ScopeFullControl)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	transport, err := googleHttp.NewTransport(ctx, hc.Transport, clientOptions...)
-	if err != nil {
-		return nil, err
+	ot := &oauth2.Transport{
+		Source: creds.TokenSource,
+		Base:   hc.Transport,
 	}
-
-	hc.Transport = transport
+	hc.Transport = ot
 
 	client, err := gs.NewClient(ctx, option.WithHTTPClient(hc))
 	if err != nil {
