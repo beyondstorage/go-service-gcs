@@ -10,15 +10,16 @@ import (
 	"strings"
 
 	gs "cloud.google.com/go/storage"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/googleapi"
+	"google.golang.org/api/option"
+
 	ps "github.com/beyondstorage/go-storage/v4/pairs"
 	"github.com/beyondstorage/go-storage/v4/pkg/credential"
 	"github.com/beyondstorage/go-storage/v4/pkg/httpclient"
 	"github.com/beyondstorage/go-storage/v4/services"
 	typ "github.com/beyondstorage/go-storage/v4/types"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/googleapi"
-	"google.golang.org/api/option"
 )
 
 // Service is the gcs config.
@@ -92,7 +93,7 @@ func newServicer(pairs ...typ.Pair) (srv *Service, err error) {
 
 	hc := httpclient.New(opt.HTTPClientOptions)
 
-	var credJSON []byte
+	var creds *google.Credentials
 
 	cp, err := credential.Parse(opt.Credential)
 	if err != nil {
@@ -100,34 +101,37 @@ func newServicer(pairs ...typ.Pair) (srv *Service, err error) {
 	}
 	switch cp.Protocol() {
 	case credential.ProtocolFile:
-		credJSON, err = ioutil.ReadFile(cp.File())
+		credJSON, err := ioutil.ReadFile(cp.File())
 		if err != nil {
 			return nil, err
 		}
-	case credential.ProtocolBase64:
-		credJSON, err = base64.StdEncoding.DecodeString(cp.Base64())
-		if err != nil {
-			return nil, err
-		}
-	case credential.ProtocolEnv:
-		// Let the GCS client fetch the creds from the env
-	default:
-		return nil, services.PairUnsupportedError{Pair: ps.WithCredential(opt.Credential)}
-	}
-
-	var creds *google.Credentials
-	if len(credJSON) > 0 {
-		// Loading token source from binary data.
 		creds, err = google.CredentialsFromJSON(ctx, credJSON, gs.ScopeFullControl)
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		// Loading token source from environment.
+	case credential.ProtocolBase64:
+		credJSON, err := base64.StdEncoding.DecodeString(cp.Base64())
+		if err != nil {
+			return nil, err
+		}
+		creds, err = google.CredentialsFromJSON(ctx, credJSON, gs.ScopeFullControl)
+		if err != nil {
+			return nil, err
+		}
+	case credential.ProtocolEnv:
+		// Google provide DefaultCredentials support via env.
+		// It will read credentials via:
+		// - file path in GOOGLE_APPLICATION_CREDENTIALS
+		// - Well known files on different platforms
+		//   - On unix platform: `~/.config/gcloud/application_default_credentials.json`
+		//   - On windows platform: `$APPDATA/gcloud/application_default_credentials.json`
+		// - Metadata server in Google App Engine or Google Compute Engine
 		creds, err = google.FindDefaultCredentials(ctx, gs.ScopeFullControl)
 		if err != nil {
 			return nil, err
 		}
+	default:
+		return nil, services.PairUnsupportedError{Pair: ps.WithCredential(opt.Credential)}
 	}
 
 	ot := &oauth2.Transport{
