@@ -6,11 +6,12 @@ import (
 	"io"
 
 	gs "cloud.google.com/go/storage"
+	"google.golang.org/api/iterator"
+
 	ps "github.com/beyondstorage/go-storage/v4/pairs"
 	"github.com/beyondstorage/go-storage/v4/pkg/iowrap"
 	"github.com/beyondstorage/go-storage/v4/services"
 	. "github.com/beyondstorage/go-storage/v4/types"
-	"google.golang.org/api/iterator"
 )
 
 func (s *Storage) create(path string, opt pairStorageCreate) (o *Object) {

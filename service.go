@@ -2,9 +2,11 @@ package gcs
 
 import (
 	"context"
+
+	"google.golang.org/api/iterator"
+
 	ps "github.com/beyondstorage/go-storage/v4/pairs"
 	typ "github.com/beyondstorage/go-storage/v4/types"
-	"google.golang.org/api/iterator"
 )
 
 func (s *Service) create(ctx context.Context, name string, opt pairServiceCreate) (store typ.Storager, err error) {
