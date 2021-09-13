@@ -13,7 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- refactor: Rewrite credential parse in more directly way (#59)
 - ci: Enable auto merge for Dependabot
 - ci: Cleanup Service Integration Tests (#67)
 - docs: Update README (#68)
@@ -21,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - fix: Regenerate code
+
+### Refactor
+
+- refactor: Rewrite credential parse in more directly way (#59)
 
 ### Upgraded
 
