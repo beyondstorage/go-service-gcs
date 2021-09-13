@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [v2.3.0] - 2021-09-13
+
+### Added
+
+- feat: Use credentials from the environment (#58)
+
+### Changed
+
+- refactor: Rewrite credential parse in more directly way (#59)
+- ci: Enable auto merge for Dependabot
+- ci: Cleanup Service Integration Tests (#67)
+- docs: Update README (#68)
+
+### Fixed
+
+- fix: Regenerate code
+
+### Upgraded
+
+- ci: Upgrade fetch-metadata
+- build(deps): Bump google.golang.org/api from 0.50.0 to 0.56.0 (#63)
+
 ## [v2.2.0] - 2021-07-21
 
 ### Added
@@ -65,6 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Implement gcs service
 
+[v2.3.0]: https://github.com/beyondstorage/go-service-gcs/compare/v2.2.0...v2.3.0
 [v2.2.0]: https://github.com/beyondstorage/go-service-gcs/compare/v2.1.0...v2.2.0
 [v2.1.0]: https://github.com/beyondstorage/go-service-gcs/compare/v2.0.0...v2.1.0
 [v2.0.0]: https://github.com/beyondstorage/go-service-gcs/compare/v1.0.0...v2.0.0
